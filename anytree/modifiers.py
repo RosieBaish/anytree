@@ -5,6 +5,24 @@ from anytree.node import NodeMixin
 from anytree import RenderTree
 
 
+def tree_map(node, map_func=None):
+    """
+    Iterate across node and it's children and return a modified copy of the tree.
+
+    Note: Any modifications map_func makes to the node or it's children
+    will affect the original node, not the new tree
+    """
+    children = [tree_map(child, map_func) for child in node.children]
+
+    result = map_func(node)
+    if not issubclass(result, NodeMixin):
+        raise RuntimeError(
+            f"map_func didn't return a valid NodeMixin" + "when called with node {node}"
+        )
+    result.children = children
+    return result
+
+
 def tree_filter(node, filter_func=None, deep_copy_func=None):
     """
     Iterate across node and it's children and return a subset of the tree.
